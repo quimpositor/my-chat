@@ -12,8 +12,8 @@
     const secondaryColor = styleCfg.secondaryColor || primaryColor;
     const fontColor = styleCfg.fontColor || '#222f3e';
     const backgroundColor = styleCfg.backgroundColor || '#fff';
-    const logo = branding.logo || '';
-    const botName = branding.name || 'Your Bot';
+    const logo = branding.logo || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBVZ70UjLOJzXDzU6YrpBekSfMZsYpp8z-Ag&s';
+    const botName = branding.name || 'Ties N Cuffs';
     const welcomeText = branding.welcomeText || 'Welcome!';
     const responseTimeText = branding.responseTimeText || '';
     const position = styleCfg.position === 'left' ? 'left' : 'right';
