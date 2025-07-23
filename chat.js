@@ -82,7 +82,7 @@
     const header = document.createElement('div');
     header.className = 'cbw-header';
     header.innerHTML = `
-        <img class="cbw-logo" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBVZ70UjLOJzXDzU6YrpBekSfMZsYpp8z-Ag&s" alt="Bot" />
+        <img class="cbw-logo" src="https://drive.google.com/file/d/15IkJ_pX8MZbDVTH48foJFogjIV79I5fv/view" alt="Bot" />
         <div class="cbw-title">Your Bot</div>
         <button class="cbw-close">&times;</button>
     `;
