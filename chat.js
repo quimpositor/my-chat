@@ -1,7 +1,22 @@
-// ChatbotWidget.js
+// ChatbotWidget.js - Updated July 2025
 (function () {
     if (window.ChatbotWidgetLoaded) return;
     window.ChatbotWidgetLoaded = true;
+
+    // --- CONFIG ---
+    const config = window.ChatWidgetConfig || {};
+    const branding = config.branding || {};
+    const styleCfg = config.style || {};
+
+    const primaryColor = styleCfg.primaryColor || '#399be6';
+    const secondaryColor = styleCfg.secondaryColor || primaryColor;
+    const fontColor = styleCfg.fontColor || '#222f3e';
+    const backgroundColor = styleCfg.backgroundColor || '#fff';
+    const logo = branding.logo || '';
+    const botName = branding.name || 'Your Bot';
+    const welcomeText = branding.welcomeText || 'Welcome!';
+    const responseTimeText = branding.responseTimeText || '';
+    const position = styleCfg.position === 'left' ? 'left' : 'right';
 
     // --- FONT ---
     const fontLink = document.createElement('link');
@@ -14,14 +29,15 @@
     style.textContent = `
         .cbw-root { font-family: 'Poppins', sans-serif; position: fixed; z-index: 9999; }
         .cbw-launcher {
-            position: fixed; bottom: 24px; right: 24px; width: 60px; height: 60px;
-            background: #10b981; border-radius: 50%; border: none; cursor: pointer;
+            position: fixed; bottom: 24px; ${position}: 24px; width: 60px; height: 60px;
+            background: ${primaryColor}; border-radius: 50%; border: none; cursor: pointer;
             box-shadow: 0 8px 32px rgba(0,0,0,0.20); display: flex; align-items: center; justify-content: center;
+            transition: background .2s;
         }
         .cbw-launcher svg { color: #fff; width: 30px; height: 30px; }
         .cbw-window {
-            position: fixed; bottom: 96px; right: 24px;
-            width: 360px; height: 560px; background: #fff; border-radius: 16px;
+            position: fixed; bottom: 96px; ${position}: 24px;
+            width: 360px; height: 560px; background: ${backgroundColor}; border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.15);
             display: flex; flex-direction: column; overflow: hidden;
             opacity: 0; transform: scale(0.95) translateY(30px); pointer-events: none;
@@ -29,24 +45,25 @@
         }
         .cbw-window.active { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
         .cbw-header {
-            background: #10b981; color: #fff; padding: 20px; display: flex; align-items: center; gap: 14px;
+            background: ${primaryColor}; color: #fff; padding: 20px; display: flex; align-items: center; gap: 14px;
         }
         .cbw-logo { width: 36px; height: 36px; border-radius: 50%; background: #fff; object-fit: cover; }
         .cbw-title { font-weight: 600; font-size: 18px; flex: 1; }
         .cbw-close { background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; }
         .cbw-welcome { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 48px 20px; }
-        .cbw-welcome h2 { font-size: 23px; font-weight: 600; margin-bottom: 18px; }
+        .cbw-welcome h2 { font-size: 23px; font-weight: 600; margin-bottom: 18px; color: ${fontColor}; }
         .cbw-welcome button {
             padding: 13px 24px; font-size: 16px; font-weight: 600; color: #fff;
-            background: #10b981; border: none; border-radius: 10px; cursor: pointer; margin-bottom: 12px;
+            background: ${primaryColor}; border: none; border-radius: 10px; cursor: pointer; margin-bottom: 12px;
             display: flex; align-items: center; gap: 7px; transition: background 0.2s;
         }
-        .cbw-welcome button:hover { background: #059669; }
+        .cbw-welcome button:hover { background: ${secondaryColor}; }
+        .cbw-welcome .cbw-rt { color: #888; font-size:14px; }
         .cbw-body { display: none; flex-direction: column; height: 100%; }
         .cbw-body.active { display: flex; flex: 1; }
         .cbw-messages { flex: 1; overflow-y: auto; padding: 20px 18px; display: flex; flex-direction: column; gap: 13px; background: #f9fafb; }
         .cbw-bubble { max-width: 80%; padding: 11px 16px; border-radius: 18px; font-size: 15px; line-height: 1.5; word-break: break-word; }
-        .cbw-user { background: #10b981; color: #fff; align-self: flex-end; border-bottom-right-radius: 6px; }
+        .cbw-user { background: ${primaryColor}; color: #fff; align-self: flex-end; border-bottom-right-radius: 6px; }
         .cbw-bot { background: #e5e7eb; color: #22223b; align-self: flex-start; border-bottom-left-radius: 6px; }
         .cbw-controls { padding: 16px; border-top: 1px solid #eee; display: flex; gap: 9px; background: #fff; }
         .cbw-input {
@@ -54,12 +71,12 @@
             font-family: inherit; line-height: 1.4;
         }
         .cbw-send {
-            background: #10b981; color: #fff; border: none; border-radius: 9px; width: 42px; height: 42px; cursor: pointer;
+            background: ${primaryColor}; color: #fff; border: none; border-radius: 9px; width: 42px; height: 42px; cursor: pointer;
             display: flex; align-items: center; justify-content: center; transition: background 0.2s;
         }
-        .cbw-send:hover { background: #059669; }
+        .cbw-send:hover { background: ${secondaryColor}; }
         @media (max-width: 500px) {
-            .cbw-window { width: 98vw; right: 1vw; height: 60vh; min-height: 320px; }
+            .cbw-window { width: 98vw; ${position}: 1vw; height: 60vh; min-height: 320px; }
         }
     `;
     document.head.appendChild(style);
@@ -82,19 +99,22 @@
     const header = document.createElement('div');
     header.className = 'cbw-header';
     header.innerHTML = `
-        <img class="cbw-logo" src="https://drive.google.com/file/d/15IkJ_pX8MZbDVTH48foJFogjIV79I5fv/view" alt="Bot" />
-        <div class="cbw-title">Your Bot</div>
+        <img class="cbw-logo" src="${logo}" alt="Bot" />
+        <div class="cbw-title">${botName}</div>
         <button class="cbw-close">&times;</button>
     `;
     win.appendChild(header);
 
-    // Welcome Screen
+    // Welcome Screen (no form, just button)
     const welcome = document.createElement('div');
     welcome.className = 'cbw-welcome';
     welcome.innerHTML = `
-        <h2>Hello! 👋</h2>
-        <button class="cbw-start"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>Start Chatting</button>
-        <div style="font-size:14px;color:#888">Fast response · 24/7</div>
+        <h2>${welcomeText}</h2>
+        <button class="cbw-start">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            Start Chatting
+        </button>
+        <div class="cbw-rt">${responseTimeText || ''}</div>
     `;
     win.appendChild(welcome);
 
@@ -105,12 +125,13 @@
         <div class="cbw-messages"></div>
         <div class="cbw-controls">
             <textarea class="cbw-input" placeholder="Type your message..."></textarea>
-            <button class="cbw-send"><svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4 20-7z"></path></svg></button>
+            <button class="cbw-send">
+                <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
+            </button>
         </div>
     `;
     win.appendChild(body);
     root.appendChild(win);
-
     document.body.appendChild(root);
 
     // --- ELEMENT REFS ---
@@ -123,8 +144,6 @@
     // --- EVENTS ---
     launcher.onclick = () => win.classList.toggle('active');
     closeBtn.onclick = () => win.classList.remove('active');
-
-    // Show chat immediately after "Start Chatting"
     startBtn.onclick = () => {
         welcome.style.display = 'none';
         body.classList.add('active');
@@ -138,7 +157,7 @@
         appendMessage(text, 'user');
         input.value = '';
         input.style.height = '38px';
-        botReply(text); // Call bot
+        botReply(text);
     }
     sendBtn.onclick = sendMessage;
     input.onkeypress = (e) => {
@@ -165,17 +184,38 @@
         const d = document.createElement('div'); d.textContent = text; return d.innerHTML;
     }
     function linkify(text) {
-        return text.replace(/(https?:\/\/[^\s]+)/g, (url) => `<a href="${url}" target="_blank" style="color:#10b981;text-decoration:underline">${url}</a>`);
+        return text.replace(/(https?:\/\/[^\s]+)/g, (url) => `<a href="${url}" target="_blank" style="color:${primaryColor};text-decoration:underline">${url}</a>`);
     }
 
-    // --- FAKE BOT (Replace this with your webhook/fetch) ---
+    // --- API BOT REPLY ---
     async function botReply(msg) {
         appendTyping();
-        // Replace with your actual API/webhook call here!
-        setTimeout(() => {
+        // Connect to the backend webhook
+        try {
+            const webhookUrl = config.webhook && config.webhook.url;
+            if (!webhookUrl) {
+                throw new Error('Webhook URL not defined.');
+            }
+            const payload = {
+                message: msg,
+                source: 'widget'
+            };
+            const res = await fetch(webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
             removeTyping();
-            appendMessage('This is a sample response. Replace with your bot logic or API call.', 'bot');
-        }, 1200);
+            if (!res.ok) {
+                appendMessage('Sorry, there was an error. Please try again.', 'bot');
+                return;
+            }
+            const data = await res.json();
+            appendMessage(data.reply || 'No response from bot.', 'bot');
+        } catch (e) {
+            removeTyping();
+            appendMessage('Sorry, I could not connect to the bot service.', 'bot');
+        }
     }
     // Typing indicator
     function appendTyping() {
@@ -202,5 +242,4 @@
         }
     `;
     document.head.appendChild(typingStyle);
-
 })();
